@@ -7,8 +7,8 @@ on:
       - dev
 
 jobs:
-  call-shared-workflow:
-    uses: lightzane/try-ghactions-sharedwf/.github/workflows/shared.yaml@main
+  dev-shared-workflow:
+    uses: lightzane/try-ghactions-sharedwf/.github/workflows/shared.yaml@dev
     with:
       example_input: "Hello from local / sibling workflow"
     
