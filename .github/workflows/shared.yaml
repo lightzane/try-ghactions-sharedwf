@@ -18,5 +18,5 @@ jobs:
 
       - name: Run a script from MAIN branch of shared workflow
         run: |
-          echo "This is an example shared workflow"
+          echo "This is an example running on shared workflow"
           echo "Input is: ${{ inputs.example_input }}"
