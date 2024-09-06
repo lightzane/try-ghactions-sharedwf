@@ -7,7 +7,11 @@ on:
         description: An example input
         required: true
         type: string
-        default: Example input for shared workflow
+      repo_name:
+        description: Sample only
+        required: false
+        type: string
+        default: ${{ github.repository }}
 
 jobs:
   shared-job:
@@ -20,3 +24,8 @@ jobs:
         run: |
           echo "This is an example running on shared workflow"
           echo "Input is: ${{ inputs.example_input }}"
+
+      - name: Repository name found!
+        if: ${{ inputs.repo_name }}
+        run: |
+          echo "The repository name is: ${{ inputs.repo_name }}"
