@@ -1,0 +1,14 @@
+name: Sample
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+
+jobs:
+  call-shared-workflow:
+    uses: lightzane/try-ghactions-sharedwf/.github/workflows/shared.yaml@main
+    with:
+      example_input: "Hello from local / sibling workflow"
+    
