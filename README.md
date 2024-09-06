@@ -1,5 +1,9 @@
 # Shared Workflows
 
+See shared workflow **templates** here: 
+https://github.com/lightzane/try-ghactions-sharedwf/tree/main/.github/workflows
+
+See other / external workflows calling the shared workflows:
 https://github.com/lightzane/try-ghactions-output/blob/main/.github/workflows/shared_workflow.yaml
 
 ```yaml
