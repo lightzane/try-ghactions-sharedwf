@@ -1,0 +1,24 @@
+name: Shared Too
+
+on:
+  workflow_call:
+    inputs:
+      one:
+        description: some description
+        required: false
+        type: string
+      two:
+        required: false
+        type: string
+
+jobs:
+  shared-job-too:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Number ONE
+        if: ${{ inputs.one }}
+        run: echo "Nice one!"
+
+      - name: Number TWO
+        if: ${{ inputs.two }}
+        run: echo "Two is better than one"
