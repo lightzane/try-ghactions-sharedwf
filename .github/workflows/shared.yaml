@@ -29,3 +29,7 @@ jobs:
         if: ${{ inputs.repo_name }}
         run: |
           echo "The repository name is: ${{ inputs.repo_name }}"
+
+      - name: Adding extra step
+        run: |
+          echo "A random number is generated: $((RANDOM % 10))"
