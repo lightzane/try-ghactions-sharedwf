@@ -1,0 +1,99 @@
+name: Set PR Title
+
+on:
+  workflow_call:
+    inputs:
+      accept_values:
+        description: "Comma or pipe-separated list of acceptable values"
+        type: string
+        required: false
+        default: "test_me | test_all"
+
+jobs:
+  set_title:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set env var
+        run: |
+          echo "PR_TITLE=${{ github.event.pull_request.title }}" >> $GITHUB_ENV
+
+          if [ -z "$PR_TITLE" ]; then
+            echo "PR TITLE not found. Please run this workflow via pull_request event"
+            exit 1
+          fi
+          
+          echo "ACCEPT_VALUES=${{ inputs.accept_values }}" >> $GITHUB_ENV
+   
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Process acceptable values
+        run: |
+          # 👉 Replace pipe characters with commas for uniform splitting
+          ACCEPT_VALUES=$(echo "${{ env.ACCEPT_VALUES }}" | sed 's/|/,/g')
+
+          # 👉 Remove extra spaces around values
+          ACCEPT_VALUES=$(echo "$ACCEPT_VALUES" | sed 's/ ,/,/g; s/, /,/g')
+
+          # [START] What is "sed"? =============================================================================
+          #
+          #   sed stands for Stream Editor. 
+          #   It is a powerful command-line tool used for parsing and transforming text data in Unix-based systems.
+          #   sed is commonly used for tasks such as searching, find-and-replace operations, text deletion, 
+          #   and insertion, among other text manipulation tasks.
+          #
+          #   💡 How sed Works
+          #
+          #   Basic Syntax: sed 'script' file
+          #     -  script is a set of editing commands.
+          #     -  file is the file to be processed. If no file is provided, sed reads from standard input.
+          #
+          #   Editing Commands:
+          #     -  s/pattern/replacement/flags: Substitutes pattern with replacement.
+          #     -  d: Deletes lines.
+          #     -  i\text: Inserts text before a line.
+          #
+          #   Example:
+          #     $ echo "Hello World" | sed 's/e/a/g'
+          #     Hallo World
+          #
+          # [END] What is "sed"? =============================================================================
+
+          # Split by comma (IFS -> Internal Field Separator is special built-in variable by shell, determines how input is split into fields)
+          IFS=',' read -r -a my_values <<< "$ACCEPT_VALUES"
+
+          # 💡
+          #   -r flag prevents backslashes from being treated as escape characters
+          #   -a lag specifies that the input should be read into an array named "my_values"
+          #   <<< "$ACCEPT_VALUES": This is a here-string that provides the value of ACCEPT_VALUES as input to the read command
+
+          # 👉 Check each values whether PR title contains the accepted values
+          for value in "${my_values[@]}"; do
+            TRIMMED_VALUE=$(echo "$value" | xargs) # xargs is used here to clean up extra spaces around the value
+
+            # [[ ... ]] - conditional experssion used for string comparison
+            # The ( * ) wildcard allows for any characters before and after TRIMMED_VALUE.
+            # This will check that PR_TITLE contains TRIMMED_VALUE as a substring
+
+            if [[ "${{ env.PR_TITLE }}" == *"$TRIMMED_VALUE"* ]]; then 
+              echo "TITLE_ACCEPTED=true" >> $GITHUB_ENV
+              exit 0
+            fi
+          done
+
+          echo "TITLE_ACCEPTED=false" >> $GITHUB_ENV
+
+      - name: Rename PR title IF acceptable values are missing
+        # if: contains(steps.get_pr_title.outputs.PR_TITLE, 'test_me') == false
+        if: env.TITLE_ACCEPTED == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }} # Make sure token NOT expired (e.g. ghp_ab8CDEFghIjKLM0nOpw4H1ZUQAHrqW26aaag)
+          # Token nust have scopes: public_repo, read:discussion, read:org
+        run: |
+          # Fetch the PR number
+          PR_NUMBER=${{ github.event.pull_request.number }}
+
+          # Define the new title
+          NEW_TITLE="${{ steps.get_pr_title.outputs.PR_TITLE }} test_me"
+          
+          gh pr edit $PR_NUMBER --title "$NEW_TITLE"
