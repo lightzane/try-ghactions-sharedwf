@@ -7,13 +7,10 @@ on:
       - f/call_pr_title
   workflow_dispatch:
 
-env:
-  GH_TOKEN: secrets.GH_TOKEN
-
 jobs:
   update_pr_title:
     uses: lightzane/try-ghactions-sharedwf/.github/workflows/pr_title.yaml@main
     with:
-      GH_TOKEN: env.GH_TOKEN
+      GH_TOKEN: secrets.GH_TOKEN
       REPO: ${{ github.repository }}
       PULL_NUMBER: ${{ github.event.pull_request.number }}
