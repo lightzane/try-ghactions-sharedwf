@@ -5,6 +5,9 @@ on:
     branches: 
       - main
       - f/call_pr_title
+    types:
+      - opened
+      - synchronize
   workflow_dispatch:
 
 jobs:
@@ -19,8 +22,7 @@ jobs:
         id: setter
         run: |
           echo "PULL_NUMBER=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
-          echo "REPO=${{ github.repository }}"
-          echo "REPO=$(basename $REPO)"
+          echo "REPO=$(basename ${{ github.repository }})" >> $GITHUB_OUTPUT
     
   update_pr_title:
     needs: setup_env
