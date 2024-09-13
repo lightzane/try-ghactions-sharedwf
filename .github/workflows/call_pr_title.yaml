@@ -2,7 +2,9 @@ name: Call PR Title
 
 on:
   pull_request:
-    branches: main
+    branches: 
+      - main
+      - f/call_pr_title
   workflow_dispatch:
 
 jobs:
