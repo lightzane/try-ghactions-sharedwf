@@ -21,16 +21,28 @@ jobs:
           ref: main
           path: target
           token: ${{ env.token }} # defaults to ${{ github.token }}
+          # token must have the following scopes:
+          #  - read:discussion
+          #  - read:org
+          #  - repo
+          #  - workflow
 
-      - name: Copy a template
+      # Single File
+      # - name: Copy a template
+      #   run: |
+      #     FILE=call_pr_title.yaml
+      #     DESTINATION=.github/workflows
+          
+      #     echo "FILE=$FILE" >> $GITHUB_ENV
+      #     echo "DESTINATION=$DESTINATION" >> $GITHUB_ENV
+          
+      #     cp source/templates/$FILE target/$DESTINATION
+
+      # Entire directory
+      - name: Copy template directory
         run: |
-          FILE=call_pr_title.yaml
-          DESTINATION=.github/workflows
-          
-          echo "FILE=$FILE" >> $GITHUB_ENV
-          echo "DESTINATION=$DESTINATION" >> $GITHUB_ENV
-          
-          cp source/templates/$FILE target/$DESTINATION
+          DESTINATION=.github/workflows          
+          cp -r source/templates target/$DESTINATION
 
       - name: Check-in target repository
         working-directory: target # See Line 22
@@ -39,8 +51,8 @@ jobs:
           if [ -n "$(git status --porcelain)" ]; then
             git config user.name "GitHub Actions"
             git config user.email "actions@github.com"
-            git add $DESTINATION/$FILE
-            git commit -m "WF_Copied_WFTemplate"
+            git add -A
+            git commit -m "🤖 WF_Copied_WFTemplates"
             git push
           else
             echo "No changes to commit."
