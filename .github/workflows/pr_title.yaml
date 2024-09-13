@@ -52,7 +52,7 @@ jobs:
 
           echo "Reading PR Title: $PR_TITLE"
 
-          if [ -z "$PR_TITLE" ]; then
+          if [ -z "$PR_TITLE" ] || [ "$PR_TITLE" = "null" ]; then
             echo "PR TITLE not found. Please run this workflow via pull_request event"
             exit 1
           fi
