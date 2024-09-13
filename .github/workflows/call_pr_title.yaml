@@ -9,7 +9,4 @@ on:
 
 jobs:
   update_pr_title:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Run shared workflow
-        uses: lightzane/try-ghactions-sharedwf/.github/workflows/pr_title.yaml@main
+    uses: lightzane/try-ghactions-sharedwf/.github/workflows/pr_title.yaml@main
