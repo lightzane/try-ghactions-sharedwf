@@ -1,7 +1,6 @@
 name: Copy Template PR Title
 
-on: 
-  workflow_dispatch:
+on: push
 
 env:
   token: ${{ secrets.GH_TOKEN }}
