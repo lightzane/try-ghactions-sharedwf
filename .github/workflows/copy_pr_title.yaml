@@ -1,0 +1,44 @@
+name: Copy Template PR Title
+
+on: workflow_dispatch
+
+env:
+  token: ${[ secrets.GH_TOKEN }}
+
+jobs:
+  copy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          path: source
+
+      - name: Checkout target code
+        uses: actions/checkout@v4
+        with:
+          repository: lightzane/try-ghactions-output
+          ref: main
+          path: target
+
+      - name: Copy a template
+        run: |
+          echo "FILE=call_pr_title.yaml" >> $GITHUB_ENV
+          echo "DESTINATION=.github/workflows" >> $GITHUB_ENV
+          
+          cp source/templates/$FILE target/$DESTINATION
+
+      - name: Check-in target repository
+        working-directory: target # See Line 22
+        run: |
+          # Check if there are any changes (-n = means non-zero length; -z = means zero-length)
+          if [ -n "$(git status --porcelain)" ]; then
+            git config user.name "GitHub Actions"
+            git config user.email "actions@github.com"
+            git add $DESTINATION/$FILE
+            git commit -m "WF_Copied_WFTemplate"
+          else
+            echo "No changes to commit."
+          fi
+        
+        
