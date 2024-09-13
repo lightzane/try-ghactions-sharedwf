@@ -2,26 +2,64 @@ name: Set PR Title
 
 on:
   workflow_call:
+    secrets:
+      token:
+        description: "The GitHub token used by that repository where the pull request needs to be updated"
+        required: true
     inputs:
+      REPO:
+        type: string
+        required: true
+      PULL_NUMBER:
+        type: string
+        required: true
+      owner:
+        description: "The owner or organization of the repository"
+        type: string
+        required: false
+        default: lightzane
       accept_values:
         description: "Comma or pipe-separated list of acceptable values"
         type: string
         required: false
         default: "test_me | test_all"
 
+env:
+  GH_API_VERSION: "2022-11-28"  
+  OWNER: ${{ inputs.owner }}
+  REPO: ${{ inputs.REPO }}
+  PULL_NUMBER: ${{ inputs.PULL_NUMBER }}
+  PR_TITLE: '' # to be populated later
+  GH_TOKEN: ${{ secrets.token }} # Make sure token NOT expired (e.g. ghp_ab8CDEFghIjKLM0nOpw4H1ZUQAHrqW26aaag)
+  # Token nust have scopes: public_repo, read:discussion, read:org
+
 jobs:
   set_title:
     runs-on: ubuntu-latest
     steps:
-      - name: Set env var
+      # Reference: https://docs.github.com/en/rest/pulls/pulls?apiVersion=2022-11-28#get-a-pull-request
+      - name: Get title of pull request
         run: |
-          echo "PR_TITLE=${{ github.event.pull_request.title }}" >> $GITHUB_ENV
+          response=$(
+            curl -L \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              -H "X-GitHub-Api-Version: $GH_API_VERSION" \
+              https://api.github.com/repos/$OWNER/$REPO/pulls/$PULL_NUMBER
+          )
 
-          if [ -z "$PR_TITLE" ]; then
+          PR_TITLE=$(echo "$response" | jq -r '.title')
+
+          if [ -z "$PR_TITLE" ] || [ "$PR_TITLE" = "null" ]; then
+            echo "$response"
             echo "PR TITLE not found. Please run this workflow via pull_request event"
             exit 1
           fi
-          
+
+          echo "PR_TITLE=$PR_TITLE" >> $GITHUB_ENV
+            
+      - name: Set env var
+        run: |
           echo "ACCEPT_VALUES=${{ inputs.accept_values }}" >> $GITHUB_ENV
    
       - name: Checkout code
@@ -30,7 +68,7 @@ jobs:
       - name: Process acceptable values
         run: |
           # 👉 Replace pipe characters with commas for uniform splitting
-          ACCEPT_VALUES=$(echo "${{ env.ACCEPT_VALUES }}" | sed 's/|/,/g')
+          ACCEPT_VALUES=$(echo "$ACCEPT_VALUES" | sed 's/|/,/g')
 
           # 👉 Remove extra spaces around values
           ACCEPT_VALUES=$(echo "$ACCEPT_VALUES" | sed 's/ ,/,/g; s/, /,/g')
@@ -59,7 +97,7 @@ jobs:
           #
           # [END] What is "sed"? =============================================================================
 
-          # Split by comma (IFS -> Internal Field Separator is special built-in variable by shell, determines how input is split into fields)
+          # 👉 Split by comma (IFS -> Internal Field Separator is special built-in variable by shell, determines how input is split into fields)
           IFS=',' read -r -a my_values <<< "$ACCEPT_VALUES"
 
           # 💡
@@ -75,7 +113,7 @@ jobs:
             # The ( * ) wildcard allows for any characters before and after TRIMMED_VALUE.
             # This will check that PR_TITLE contains TRIMMED_VALUE as a substring
 
-            if [[ "${{ env.PR_TITLE }}" == *"$TRIMMED_VALUE"* ]]; then 
+            if [[ "$PR_TITLE" == *"$TRIMMED_VALUE"* ]]; then 
               echo "TITLE_ACCEPTED=true" >> $GITHUB_ENV
               exit 0
             fi
@@ -85,15 +123,32 @@ jobs:
 
       - name: Rename PR title IF acceptable values are missing
         # if: contains(steps.get_pr_title.outputs.PR_TITLE, 'test_me') == false
-        if: env.TITLE_ACCEPTED == 'true'
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }} # Make sure token NOT expired (e.g. ghp_ab8CDEFghIjKLM0nOpw4H1ZUQAHrqW26aaag)
-          # Token nust have scopes: public_repo, read:discussion, read:org
+        if: env.TITLE_ACCEPTED == 'false'
         run: |
-          # Fetch the PR number
-          PR_NUMBER=${{ github.event.pull_request.number }}
-
-          # Define the new title
-          NEW_TITLE="${{ steps.get_pr_title.outputs.PR_TITLE }} test_me"
+          NEW_TITLE="$PR_TITLE test_me"
           
-          gh pr edit $PR_NUMBER --title "$NEW_TITLE"
+          # Update a pull request
+          # Reference: https://docs.github.com/en/rest/pulls/pulls?apiVersion=2022-11-28#update-a-pull-request
+
+          response=$(
+            curl -L \
+              -X PATCH \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              -H "X-GitHub-Api-Version: $GH_API_VERSION" \
+              https://api.github.com/repos/$OWNER/$REPO/pulls/$PULL_NUMBER \
+              -d "{\"title\":\"$NEW_TITLE\"}"
+              
+              # -d '{"title":"new title","body":"updated body","state":"open","base":"master"}'
+          )
+
+          echo "$response"
+
+          status=$(echo "$response" | jq -r '.status')
+          
+          echo "The status is: $status"
+
+          if [ ! -z "$status" ] && [ "$status" != "null" ]; then
+            # Usually when status code is not 200, then this field is present with 401 value etc.
+            exit 1
+          fi
