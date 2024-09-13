@@ -42,7 +42,12 @@ jobs:
       - name: Copy template directory
         run: |
           DESTINATION=.github/workflows          
-          cp -r source/templates target/$DESTINATION
+          
+          # Move all files along with the folder
+          # cp -r source/templates target/$DESTINATION
+
+          # Move ONLY all files inside the folder
+          cp -r source/templates/* target/$DESTINATION
 
       - name: Check-in target repository
         working-directory: target # See Line 22
