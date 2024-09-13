@@ -24,8 +24,8 @@ jobs:
 
       - name: Copy a template
         run: |
-          echo "FILE=call_pr_title.yaml"
-          echo "DESTINATION=.github/workflows"
+          FILE=call_pr_title.yaml
+          DESTINATION=.github/workflows
           
           echo "FILE=$FILE" >> $GITHUB_ENV
           echo "DESTINATION=$DESTINATION" >> $GITHUB_ENV
