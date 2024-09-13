@@ -18,8 +18,9 @@ jobs:
       - name: Set env variables
         id: setter
         run: |
-          echo "REPO=${{ github.repository }}" >> $GITHUB_OUTPUT
           echo "PULL_NUMBER=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
+          echo "REPO=${{ github.repository }}"
+          echo "REPO=$(basename $REPO)"
     
   update_pr_title:
     needs: setup_env
