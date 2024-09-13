@@ -1,11 +1,9 @@
 name: Copy Template PR Title
 
-on: 
-  push:
-  workflow_dispatch:
+on: workflow_dispatch
 
 env:
-  token: ${[ secrets.GH_TOKEN }}
+  token: ${{ secrets.GH_TOKEN }}
 
 jobs:
   copy:
