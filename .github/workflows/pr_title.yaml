@@ -144,7 +144,8 @@ jobs:
 
           echo "$response"
 
-          echo "status=$(echo "$response" | jq -r '.status')"
+          status=$(echo "$response" | jq -r '.status')
+          
           echo "The status is: $status"
 
           if [ ! -z "$status" ]; then
