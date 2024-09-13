@@ -30,7 +30,7 @@ env:
   REPO: ${{ inputs.REPO }}
   PULL_NUMBER: ${{ inputs.PULL_NUMBER }}
   PR_TITLE: '' # to be populated later
-  GH_TOKEN: ${{ inputs.GH_TOKEN }} # Make sure token NOT expired (e.g. ghp_ab8CDEFghIjKLM0nOpw4H1ZUQAHrqW26aaag)
+  GH_TOKEN: ${{ secrets.token }} # Make sure token NOT expired (e.g. ghp_ab8CDEFghIjKLM0nOpw4H1ZUQAHrqW26aaag)
   # Token nust have scopes: public_repo, read:discussion, read:org
 
 jobs:
