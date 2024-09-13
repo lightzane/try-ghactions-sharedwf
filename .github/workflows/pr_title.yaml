@@ -137,9 +137,16 @@ jobs:
               -H "Authorization: Bearer $GH_TOKEN" \
               -H "X-GitHub-Api-Version: $GH_API_VERSION" \
               https://api.github.com/repos/$OWNER/$REPO/pulls/$PULL_NUMBER \
-              -d '{"title":"$NEW_TITLE"}'
+              -d "{\"title\":\"$NEW_TITLE\"}"
               
               # -d '{"title":"new title","body":"updated body","state":"open","base":"master"}'
           )
 
           echo "$response"
+
+          status=$(echo "$response" | jq -r '.status')
+
+          if [ ! -z "$status" ]; then
+            # Usually when status code is not 200, then this field is present with 401 value etc.
+            exit 1
+          fi
