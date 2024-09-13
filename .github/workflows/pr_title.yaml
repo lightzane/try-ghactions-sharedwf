@@ -144,7 +144,8 @@ jobs:
 
           echo "$response"
 
-          status=$(echo "$response" | jq -r '.status')
+          echo "status=$(echo "$response" | jq -r '.status')"
+          echo "The status is: $status"
 
           if [ ! -z "$status" ]; then
             # Usually when status code is not 200, then this field is present with 401 value etc.
