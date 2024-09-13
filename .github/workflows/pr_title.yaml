@@ -132,7 +132,7 @@ jobs:
             curl -L \
               -X PATCH \
               -H "Accept: application/vnd.github+json" \
-              -H "Authorization: Bearer ${{ secrets.GH_TOKEN }}" \
+              -H "Authorization: Bearer $GH_TOKEN" \
               -H "X-GitHub-Api-Version: $GH_API_VERSION" \
               https://api.github.com/repos/$OWNER/$REPO/pulls/$PULL_NUMBER \
               -d '{"title":$NEW_TITLE}'
