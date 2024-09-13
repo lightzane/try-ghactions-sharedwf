@@ -2,15 +2,15 @@ name: Set PR Title
 
 on:
   workflow_call:
+    secrets:
+      token:
+        description: "The GitHub token used by that repository where the pull request needs to be updated"
+        required: true
     inputs:
       REPO:
         type: string
         required: true
       PULL_NUMBER:
-        type: string
-        required: true
-      GH_TOKEN:
-        description: "The GitHub token used by that repository where the pull request needs to be updated"
         type: string
         required: true
       owner:
