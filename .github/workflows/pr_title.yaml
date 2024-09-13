@@ -26,11 +26,11 @@ on:
 
 env:
   GH_API_VERSION: "2022-11-28"  
-  OWNER: inputs.owner
-  REPO: inputs.REPO
-  PULL_NUMBER: inputs.PULL_NUMBER
+  OWNER: ${{ inputs.owner }}
+  REPO: ${{ inputs.REPO }}
+  PULL_NUMBER: ${{ inputs.PULL_NUMBER }}
   PR_TITLE: '' # to be populated later
-  GH_TOKEN: inputs.GH_TOKEN # Make sure token NOT expired (e.g. ghp_ab8CDEFghIjKLM0nOpw4H1ZUQAHrqW26aaag)
+  GH_TOKEN: ${{ inputs.GH_TOKEN }} # Make sure token NOT expired (e.g. ghp_ab8CDEFghIjKLM0nOpw4H1ZUQAHrqW26aaag)
   # Token nust have scopes: public_repo, read:discussion, read:org
 
 jobs:
