@@ -59,7 +59,7 @@ jobs:
           #
           # [END] What is "sed"? =============================================================================
 
-          # Split by comma (IFS -> Internal Field Separator is special built-in variable by shell, determines how input is split into fields)
+          # 👉 Split by comma (IFS -> Internal Field Separator is special built-in variable by shell, determines how input is split into fields)
           IFS=',' read -r -a my_values <<< "$ACCEPT_VALUES"
 
           # 💡
