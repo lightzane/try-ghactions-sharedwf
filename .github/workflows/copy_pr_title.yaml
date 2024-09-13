@@ -20,6 +20,7 @@ jobs:
           repository: lightzane/try-ghactions-output
           ref: main
           path: target
+          token: ${{ env.token }} # defaults to ${{ github.token }}
 
       - name: Copy a template
         run: |
