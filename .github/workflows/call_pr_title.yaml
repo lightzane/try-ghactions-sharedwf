@@ -16,6 +16,7 @@ jobs:
       pull_number: ${{ steps.setter.outputs.PULL_NUMBER }}
     steps:
       - name: Set env variables
+        id: setter
         run: |
           echo "REPO=${{ github.repository }}" >> $GITHUB_OUTPUT
           echo "PULL_NUMBER=${{ github.event.pull_request.number }}"
