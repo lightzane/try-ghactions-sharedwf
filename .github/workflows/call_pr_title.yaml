@@ -32,3 +32,12 @@ jobs:
       PULL_NUMBER: ${{ needs.setup_env.outputs.pull_number }}
     secrets:
       token: ${{ secrets.GH_TOKEN }}
+
+  final:
+    needs: update_pr_title
+    runs-on: ubuntu-latest
+    steps:
+      - name: See output
+        run: |
+          echo "Title: ${{ needs.update_pr_title.outputs.title }}"
+    
