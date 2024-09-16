@@ -68,9 +68,6 @@ jobs:
       - name: Set env var
         run: |
           echo "ACCEPT_VALUES=${{ inputs.accept_values }}" >> $GITHUB_ENV
-   
-      - name: Checkout code
-        uses: actions/checkout@v4
 
       - name: Process acceptable values
         run: |
