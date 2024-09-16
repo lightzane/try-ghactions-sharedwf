@@ -6,6 +6,7 @@ on:
       token:
         description: "The GitHub token used by that repository where the pull request needs to be updated"
         required: true
+        
     inputs:
       REPO:
         type: string
@@ -23,6 +24,11 @@ on:
         type: string
         required: false
         default: "test_me | test_all"
+
+    outputs:
+      title:
+        description: "The current or updated PR title"
+        value: ${{ steps.finalize.outputs.title }}
 
 env:
   GH_API_VERSION: "2022-11-28"  
@@ -126,6 +132,8 @@ jobs:
         if: env.TITLE_ACCEPTED == 'false'
         run: |
           NEW_TITLE="$PR_TITLE test_me"
+
+          echo "UPDATED_TITLE=$NEW_TITLE" >> $GITHUB_ENV
           
           # Update a pull request
           # Reference: https://docs.github.com/en/rest/pulls/pulls?apiVersion=2022-11-28#update-a-pull-request
@@ -152,3 +160,14 @@ jobs:
             # Usually when status code is not 200, then this field is present with 401 value etc.
             exit 1
           fi
+
+      
+          
+      - name: Finalize
+        id: finalize
+        run: |
+          # Use parameter expansion for conditional assignment 
+          # Similar to JavaScript: const title = UPDATED_TITLE || PR_TITLE
+          TITLE=${UPDATED_TITLE:-${PR_TITLE}}
+          
+          echo "title=$TITLE" >> $GITHUB_OUTPUT
