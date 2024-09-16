@@ -42,7 +42,8 @@ env:
 jobs:
   set_title:
     runs-on: ubuntu-latest
-    outputs: ${{ steps.finalize.outputs.title }}
+    outputs: 
+      title: ${{ steps.finalize.outputs.title }}
     steps:
       # Reference: https://docs.github.com/en/rest/pulls/pulls?apiVersion=2022-11-28#get-a-pull-request
       - name: Get title of pull request
